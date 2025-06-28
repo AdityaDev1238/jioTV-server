@@ -22,6 +22,16 @@ public class Show
 	@Column
     private String type;
 	
+	private String iurl;
+	
+	public String getIurl() {
+		return iurl;
+	}
+
+	public void setIurl(String iurl) {
+		this.iurl = iurl;
+	}
+
 	public Show() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -61,7 +71,7 @@ public class Show
 
 	@Override
 	public String toString() {
-		return "Shows [id=" + id + ", title=" + title + ", url=" + url + ", type=" + type + "]";
+		return "Show [id=" + id + ", title=" + title + ", url=" + url + ", type=" + type + ", iurl=" + iurl + "]";
 	} 
 	
 	

@@ -14,36 +14,49 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jio.Tv.model.User;
 import com.jio.Tv.service.UserServiceImp;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000",allowCredentials = "true")
 public class UserController 
 {
 	@Autowired
 	UserServiceImp service;
 	
 	@PostMapping("/saveUser")
-	public ResponseEntity<String> addUser(@RequestBody User user)
+	public ResponseEntity<String> addUser(@RequestBody User user,HttpSession session)
 	{
+	    ResponseEntity<String> re=null;
+		
 		User u1=service.addUser(user);
-		ResponseEntity<String> re=null;
+		
 		if(u1!=null)
 		{
 			re=new ResponseEntity<>("Added",HttpStatus.OK);
 		}
 		else
 		{
-			re=new ResponseEntity<>("Added",HttpStatus.FAILED_DEPENDENCY);
+			re=new ResponseEntity<>("Not Added",HttpStatus.FAILED_DEPENDENCY);
 		}
 		return re;
 		
 	}
 	
 	@DeleteMapping("/deleteUser/{id}")
-	public ResponseEntity<String> deleteUser(@PathVariable("id") int id)
+	public ResponseEntity<String> deleteUser(@PathVariable("id") int id,HttpSession session)
 	{
-		int i=service.deleteUser(id);
+		String cuser=(String)session.getAttribute("name");
 		ResponseEntity<String> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
+		int i=service.deleteUser(id);
+		
 		if(i>0)
 		{
 			re=new ResponseEntity<>("Deleted",HttpStatus.OK);
@@ -57,13 +70,19 @@ public class UserController
 	}
 	
 	@PostMapping("/loginuser")
-	public ResponseEntity<String> validateUser(@RequestBody User user) 
+	public ResponseEntity<String> validateUser(@RequestBody User user,HttpSession session) 
 	{
-		
+		ResponseEntity<String> re=null;
+		String currentUser = (String) session.getAttribute("name");
+	    if (currentUser != null) {
+	        re = new ResponseEntity<>("Already logged in as: " + currentUser, HttpStatus.CONFLICT);
+	        return re;
+	    }
 	    User u1=service.validateUser(user.getName(), user.getPassword());
-	    ResponseEntity<String> re=null;
+	    
 	    if(u1!=null)
 	    {
+	    	session.setAttribute("name", user.getName());
 	    	re=new ResponseEntity<>("Found",HttpStatus.OK);
 	    }
 	    else
@@ -74,11 +93,16 @@ public class UserController
 	}
 	
 	@PutMapping("/changepassw")
-	public ResponseEntity<String> changePassword(@RequestBody User user)
+	public ResponseEntity<String> changePassword(@RequestBody User user,HttpSession session)
 	{
-		int i=service.changePassword(user.getName(), user.getPassword());
 		
 		ResponseEntity<String> re=null;
+		
+		
+          
+		int i=service.changePassword(user.getName(), user.getPassword());
+		
+		
 		if(i>0)
 		{
 			re=new ResponseEntity<>("Changed",HttpStatus.OK);
@@ -90,5 +114,23 @@ public class UserController
 		return re;
 		
 	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(HttpSession session)
+	{
+		String  u1=(String)session.getAttribute("name");
+		ResponseEntity<String> re=null;
+		if(u1==null)
+		{
+			re=new ResponseEntity<String>("No active Sessions",HttpStatus.BAD_REQUEST);
+			return re;
+			
+		}
+		
+		session.invalidate();
+		re=new ResponseEntity<String>("Logout Successfully",HttpStatus.OK);
+		return re;
+	}
+	
 
 }

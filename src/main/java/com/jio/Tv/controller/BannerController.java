@@ -16,18 +16,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jio.Tv.model.Banner;
 import com.jio.Tv.service.BannerServiceImp;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000",allowCredentials = "true")
 public class BannerController 
 {
 	@Autowired
 	BannerServiceImp service;
 	
 	@GetMapping("/getAllBanner")
-	public ResponseEntity<List<Banner>> getAllBannner()
+	public ResponseEntity<?> getAllBannner(HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		List<Banner> list=service.getAllBanner();
-		ResponseEntity<List<Banner>> re=null;
+		
 		if(list!=null)
 		{
 			re=new ResponseEntity<>(list,HttpStatus.ACCEPTED); 
@@ -41,10 +50,17 @@ public class BannerController
 	}
 	
 	 @PostMapping("/saveBanner")
-	 public ResponseEntity<String> addBanner(@RequestBody Banner banner)
+	 public ResponseEntity<?> addBanner(@RequestBody Banner banner,HttpSession session)
 	 {
+		    String cuser=(String)session.getAttribute("name");
+			ResponseEntity<?> re=null;
+			if(cuser==null)
+			{
+				re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+				return re;
+			}
 		 Banner b1=service.addBanner(banner);
-		 ResponseEntity<String> re=null;
+		 
 		 if(b1!=null)
 		 {
 			 re=new ResponseEntity<>("Added",HttpStatus.OK);
@@ -58,10 +74,17 @@ public class BannerController
 		 
 	 }
 	 @DeleteMapping("/deleteBanner/{id}")
-	 public ResponseEntity<String> deleteBanner(@PathVariable("id") int id)
+	 public ResponseEntity<?> deleteBanner(@PathVariable("id") int id,HttpSession session)
 	 {
+		    String cuser=(String)session.getAttribute("name");
+			ResponseEntity<?> re=null;
+			if(cuser==null)
+			{
+				re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+				return re;
+			}
 		   int i=service.deleteBanner(id);
-		   ResponseEntity<String> re=null;
+		  
 			if(i>0)
 			{
 				re=new ResponseEntity<>("Deleted",HttpStatus.OK);

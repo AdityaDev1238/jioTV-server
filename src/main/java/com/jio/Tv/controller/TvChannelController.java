@@ -17,18 +17,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jio.Tv.model.TvChannel;
 import com.jio.Tv.service.TvChannelServiceImp;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000",allowCredentials = "true")
 public class TvChannelController 
 {
 	@Autowired
 	TvChannelServiceImp service;
 	
 	@GetMapping("/")
-	public ResponseEntity<List<TvChannel>> getAll()
+	public ResponseEntity<?> getAll(HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		List<TvChannel> list=service.getAll();
-		ResponseEntity<List<TvChannel>> re=null;
+		
 		if(list!=null)
 		{
 			re=new ResponseEntity<>(list,HttpStatus.ACCEPTED);
@@ -44,11 +53,17 @@ public class TvChannelController
 	}
 	
 	@PostMapping("/saveChannel")
-	public ResponseEntity<String> addChannel(@RequestBody TvChannel channel)
+	public ResponseEntity<?> addChannel(@RequestBody TvChannel channel,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		
 		TvChannel channel1=service.addChannel(channel);
-		ResponseEntity<String> re=null;
 		
 		if(channel1!=null)
 		{
@@ -56,17 +71,24 @@ public class TvChannelController
 		}
 		else
 		{
-			re=new ResponseEntity<>("Added",HttpStatus.FAILED_DEPENDENCY);
+			re=new ResponseEntity<>("Not Added",HttpStatus.FAILED_DEPENDENCY);
 		}
 		return re;
 		
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<TvChannel> getId(@PathVariable("id") int id)
+	public ResponseEntity<?> getId(@PathVariable("id") int id,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		TvChannel channel=service.getChannel(id);
-		ResponseEntity<TvChannel> re=null;
+		
 		if(channel!=null)
 		{
 			re=new ResponseEntity<>(channel,HttpStatus.OK);
@@ -81,10 +103,17 @@ public class TvChannelController
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<String> deleteId(@PathVariable("id")int id)
+	public ResponseEntity<?> deleteId(@PathVariable("id")int id,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		int i=service.deleteChannel(id);
-		ResponseEntity<String> re=null;
+		
 		if(i>0)
 		{
 			re=new ResponseEntity<>("Deleted",HttpStatus.OK);
@@ -97,10 +126,17 @@ public class TvChannelController
 	}
 	
 	@PutMapping("/update/{id}")
-	public ResponseEntity<String> updateChannel(@RequestBody TvChannel channel,@PathVariable("id") int id)
+	public ResponseEntity<?> updateChannel(@RequestBody TvChannel channel,@PathVariable("id") int id,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		TvChannel c1=service.updateChannel(id, channel);
-		ResponseEntity<String> re=null;
+		
 		if(c1!=null)
 		{
 			re=new ResponseEntity<>("Updated",HttpStatus.OK);

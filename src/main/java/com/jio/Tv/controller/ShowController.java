@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jio.Tv.model.Banner;
 import com.jio.Tv.model.Show;
 import com.jio.Tv.service.ShowServiceImp;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000",allowCredentials = "true")
 public class ShowController 
 {
 	@Autowired
@@ -25,10 +26,17 @@ public class ShowController
 	
 	
 	@PostMapping("/addShow")
-	public ResponseEntity<String> addShow(@RequestBody Show show)
+	public ResponseEntity<?> addShow(@RequestBody Show show,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		Show s1=service.addShow(show);
-		ResponseEntity<String> re=null;
+		
 		
 		if(s1!=null)
 		{
@@ -41,10 +49,17 @@ public class ShowController
 		return re;
 	}
 	@GetMapping("/getAllShows")
-	public ResponseEntity<List<Show>> getAll()
+	public ResponseEntity<?> getAll(HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		List<Show> list=service.getAll();
-		ResponseEntity<List<Show>> re=null;
+		
 		if(list!=null)
 		{
 			re=new ResponseEntity<>(list,HttpStatus.ACCEPTED); 
@@ -58,10 +73,17 @@ public class ShowController
 	}
 	
 	@GetMapping("/showtype/{type}")
-	public ResponseEntity<List<Show>> getAllType(@PathVariable("type") String type)
+	public ResponseEntity<?> getAllType(@PathVariable("type") String type,HttpSession session)
 	{
+		String cuser=(String)session.getAttribute("name");
+		ResponseEntity<?> re=null;
+		if(cuser==null)
+		{
+			re=new ResponseEntity<>("Unauthorised",HttpStatus.UNAUTHORIZED);
+			return re;
+		}
 		List<Show> list=service.getType(type);
-		ResponseEntity<List<Show>> re=null;
+		
 		if(list!=null)
 		{
 			re=new ResponseEntity<>(list,HttpStatus.ACCEPTED); 
